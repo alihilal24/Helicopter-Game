@@ -13,7 +13,7 @@ namespace Collision
 	using TextureMask = std::vector<sf::Uint8>;
 
 	static sf::Uint8 getPixel(const TextureMask& mask, const sf::Texture& tex, uint32_t x, uint32_t y) {
-		if (x > tex.getSize().x || y > tex.getSize().y)
+			if (x >= tex.getSize().x || y >= tex.getSize().y)
 			return 0;
 
 		return mask[x + y * tex.getSize().x];
@@ -23,7 +23,7 @@ namespace Collision
 	{
 	public:
 
-		auto& get(const sf::Texture& tex) {
+			TextureMask& get(const sf::Texture& tex) {
 			auto pair = bitmasks.find(&tex);
 			if (pair == bitmasks.end())
 			{
@@ -33,7 +33,7 @@ namespace Collision
 			return pair->second;
 		}
 
-		auto& create(const sf::Texture& tex, const sf::Image& img) {
+			TextureMask& create(const sf::Texture& tex, const sf::Image& img) {
 			auto mask = TextureMask(tex.getSize().y * tex.getSize().x);
 
 			for (uint32_t y = 0; y < tex.getSize().y; ++y)
@@ -52,7 +52,7 @@ namespace Collision
 	// Gets global instance of BitmaskRegistry.
 	// "static" to make sure this function doesn't leak to other source file
 	static BitmaskRegistry& bitmasks() {
-		static BitmaskRegistry& instance;
+			static BitmaskRegistry instance;
 		return instance;
 	}
 
@@ -149,9 +149,9 @@ namespace Collision
 			auto transform = sprite.getTransform();
 			auto local = sprite.getTextureRect();
 			points[0] = transform.transformPoint(0.f, 0.f);
-			points[1] = transform.transformPoint(local.width, 0.f);
-			points[2] = transform.transformPoint(local.width, local.height);
-			points[3] = transform.transformPoint(0.f, local.height);
+			points[1] = transform.transformPoint(static_cast<float>(local.width), 0.f);
+			points[2] = transform.transformPoint(static_cast<float>(local.width), static_cast<float>(local.height));
+			points[3] = transform.transformPoint(0.f, static_cast<float>(local.height));
 		}
 
 		// Project all four points of the OBB onto the given axis and return the dot products of the two outermost points
@@ -159,7 +159,7 @@ namespace Collision
 		{
 			min = (points[0].x * axis.x + points[0].y * axis.y);
 			max = min;
-			for (int j = 1; j < points.size(); ++j)
+			for (size_t j = 1; j < points.size(); ++j)
 			{
 				auto projection = points[j].x * axis.x + points[j].y * axis.y;
 
@@ -176,12 +176,12 @@ namespace Collision
 		auto OBB2 = OrientedBoundingBox(sprite2);
 
 		// Create the four distinct axes that are perpendicular to the edges of the two rectangles
-		auto axes = std::array<sf::Vector2f, 4>({
+			std::array<sf::Vector2f, 4> axes = {{
 			{ OBB1.points[1].x - OBB1.points[0].x, OBB1.points[1].y - OBB1.points[0].y },
 			{ OBB1.points[1].x - OBB1.points[2].x, OBB1.points[1].y - OBB1.points[2].y },
 			{ OBB2.points[0].x - OBB2.points[3].x, OBB2.points[0].y - OBB2.points[3].y },
 			{ OBB2.points[0].x - OBB2.points[1].x, OBB2.points[0].y - OBB2.points[1].y }
-			});
+				}};
 
 		for (auto& axis : axes)
 		{

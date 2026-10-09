@@ -5,12 +5,12 @@ class Wall
 public:
 	Wall(int screenHeight, int screenWidth);
 	Wall(int Height, int Width, int Bound, float Speed, int screenHeight, int screenWidth);
-	int getHeight();
-	int getWidth();
-	int getLocation();
-	int getSpeed();
+	int getHeight() const;
+	int getWidth() const;
+	int getLocation() const;
+	float getSpeed() const;
 	void move(float DeltaTime);
-	sf::RectangleShape getWall();
+	const sf::RectangleShape& getWall() const;
 	void reset();
 
 private:
